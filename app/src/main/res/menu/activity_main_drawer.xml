@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_location"
+            android:icon="@drawable/ic_my_location_black_24dp"
+            android:title="Locations" />
+        <item
+            android:id="@+id/nav_chatroom"
+            android:icon="@drawable/ic_visibility_off_black_24dp"
+            android:title="AnonymousI" />
+        <item
+            android:id="@+id/nav_bulksms"
+            android:icon="@drawable/ic_email_black_24dp"
+            android:title="BulkSMS" />
+        <item
+            android:id="@+id/nav_ideas"
+            android:icon="@drawable/ic_record_voice_over_black_24dp"
+            android:title="Ideas" />
+    </group>
+
+    <item android:title="Communicate">
+        <menu>
+            <item
+                android:id="@+id/nav_share"
+                android:icon="@drawable/ic_share_black_24dp"
+                android:title="Share App" />
+            <item
+                android:id="@+id/nav_info"
+                android:icon="@drawable/ic_info_outline_black_24dp"
+                android:title="App Info" />
+        </menu>
+    </item>
+
+</menu>
