@@ -16,7 +16,7 @@ import android.view.MenuItem;
 
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,BulksmsFragment.OnFragmentInteractionListener,ChatroomFragment.OnFragmentInteractionListener,IdeasFragment.OnFragmentInteractionListener,MapFragment.OnFragmentInteractionListener{
+        implements NavigationView.OnNavigationItemSelectedListener,BulksmsFragment.OnFragmentInteractionListener,ChatroomFragment.OnFragmentInteractionListener,IdeasFragment.OnFragmentInteractionListener,MapsFragment.OnFragmentInteractionListener{
 
     public Location mLastLocation = null;
     String mLastUpdateTime;
@@ -50,8 +50,8 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         // initially go to map frag
-        /*getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragments_container, new MapFragment() ).commit();*/
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragments_container, new MapsFragment() ).commit();
     }
 
 
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_location) {
             // Handle the map action
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragments_container, new MapFragment() ).commit();
+                    .replace(R.id.fragments_container, new MapsFragment() ).commit();
         } else if (id == R.id.nav_chatroom) {
 
             getSupportFragmentManager().beginTransaction()

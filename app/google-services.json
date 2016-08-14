@@ -1,27 +1,27 @@
 {
   "project_info": {
-    "project_number": "699158925868",
-    "firebase_url": "https://choreoapp-e95e5.firebaseio.com",
-    "project_id": "choreoapp-e95e5",
-    "storage_bucket": "choreoapp-e95e5.appspot.com"
+    "project_number": "211235657560",
+    "firebase_url": "https://choreoapp-22bf2.firebaseio.com",
+    "project_id": "choreoapp-22bf2",
+    "storage_bucket": "choreoapp-22bf2.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:699158925868:android:58a2113ecea32299",
+        "mobilesdk_app_id": "1:211235657560:android:58a2113ecea32299",
         "android_client_info": {
           "package_name": "in.dsardy.choreoapp3"
         }
       },
       "oauth_client": [
         {
-          "client_id": "699158925868-8sjqse1pvn8poqn5f3lp0tjpoijgipvf.apps.googleusercontent.com",
+          "client_id": "211235657560-i8829libdv5m284hldqm9d8csrb0c442.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyD-gUhRH0QOl2o3E9qq37vYeZVObB6qYFw"
+          "current_key": "AIzaSyAEqsrzX4NfYm0kdkYcVLjDbD41eBRtKfQ"
         }
       ],
       "services": {
