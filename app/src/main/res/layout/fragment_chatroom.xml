@@ -1,13 +1,59 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="in.dsardy.choreoapp3.ChatroomFragment">
+    tools:context="in.dsardy.choreoapp3.ChatroomFragment"
+    android:orientation="vertical"
+    android:weightSum="100">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Anonymous Chatroom" />
+        android:layout_weight="100">
 
-</FrameLayout>
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/scrollView"
+            android:padding="10dp">
+
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/msgView"
+                android:padding="10dp" />
+        </ScrollView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="10"
+        android:background="@color/colorPrimary"
+        android:padding="10dp">
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/editTextMsg"
+            android:background="@drawable/edittect_bg"
+            android:hint="Type something"
+            android:layout_weight="9"
+            android:padding="10dp"
+            android:layout_gravity="center_vertical" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:id="@+id/imageButtonSend"
+            android:src="@drawable/ic_send_black_24dp"
+            android:background="@null"
+            android:padding="10dp"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
+</LinearLayout>

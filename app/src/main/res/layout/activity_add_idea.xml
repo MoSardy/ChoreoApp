@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context="in.dsardy.choreoapp3.AddIdea"
+    android:orientation="vertical"
+    android:padding="15dp"
+    android:background="@color/accent_material_light">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/editTextTitle"
+            android:autoText="false"
+            android:background="@drawable/edittect_bg"
+            android:hint="Set Title..."
+            android:padding="10dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="1"
+        android:layout_marginTop="20dp">
+
+        <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="200dp"
+            android:id="@+id/editTextDes"
+            android:background="@color/background_floating_material_light"
+            android:padding="10dp"
+            android:layout_weight="10.18"
+            android:hint="Type description"
+            android:gravity="top" />
+    </LinearLayout>
+</LinearLayout>
