@@ -2,9 +2,11 @@ package in.dsardy.choreoapp3;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Spannable;
@@ -16,6 +18,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -26,6 +29,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -51,15 +57,17 @@ public class ChatroomFragment extends Fragment {
     private String mParam2;
 
     //firebase database
-    private DatabaseReference chatroomreference;
+    private DatabaseReference chatroomreference,onlinereference;
     String temp_key;
 
     //ui
     EditText msg;
     ImageButton sendMsg;
     TextView chatview;
-    ProgressDialog progressDialog;
-    ScrollView scroll;
+    SharedPreferences userPref;
+    LinearLayout onlineLayout;
+    TextView onlineShow;
+    ScrollView chatscroll;
 
 
 
@@ -95,10 +103,61 @@ public class ChatroomFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        progressDialog = new ProgressDialog(getActivity());
 
 
         chatroomreference = FirebaseDatabase.getInstance().getReference().child("chatroom");
+        onlinereference = FirebaseDatabase.getInstance().getReference().child("online");
+
+        //incriment online people
+        userPref = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+
+        DatabaseReference referenceOnline = FirebaseDatabase.getInstance().getReference().child("online");
+
+
+        if(userPref.getInt("sex",1)==1){
+            DatabaseReference boys = referenceOnline.child("boys");
+            Log.e("chack1>>> on create ","mutable data");
+
+            boys.runTransaction(new Transaction.Handler() {
+
+                @Override
+                public Transaction.Result doTransaction(MutableData mutableData) {
+                    Log.e("chack22>>> on create ","mutable data");
+
+                    String bo = mutableData.getValue(String.class);
+                    String boNew = ""+(Integer.parseInt(bo)+1);
+                    mutableData.setValue(boNew);
+                    Log.e("chack222>>> on create ","mutable data");
+                    return Transaction.success(mutableData);
+                }
+
+                @Override
+                public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+
+                }
+            });
+        }else {
+
+            DatabaseReference boys = referenceOnline.child("girls");
+            boys.runTransaction(new Transaction.Handler() {
+                @Override
+                public Transaction.Result doTransaction(MutableData mutableData) {
+
+                    String go = mutableData.getValue(String.class);
+                    String goNew = ""+(Integer.parseInt(go)+1);
+                    mutableData.setValue(goNew);
+                    return Transaction.success(mutableData);
+                }
+
+                @Override
+                public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+
+                }
+            });
+
+
+        }
+
 
 
     }
@@ -115,12 +174,15 @@ public class ChatroomFragment extends Fragment {
 
         chatview = (TextView)view.findViewById(R.id.msgView);
 
-        scroll = (ScrollView)view.findViewById(R.id.scrollView);
 
-        scroll.postDelayed(new Runnable() {
+        onlineLayout = (LinearLayout)view.findViewById(R.id.onlinebar);
+        onlineShow = (TextView)view.findViewById(R.id.textViewOnline);
+        chatscroll = (ScrollView)view.findViewById(R.id.ChatscrollView);
+
+        chatscroll.postDelayed(new Runnable() {
             @Override
             public void run() {
-                scroll.fullScroll(ScrollView.FOCUS_DOWN);
+                chatscroll.fullScroll(ScrollView.FOCUS_DOWN);
             }
         },1000);
 
@@ -132,11 +194,7 @@ public class ChatroomFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        //if textview null
-        if(chatview.getText().toString().isEmpty()){
-            progressDialog.setMessage("connecting...");
-            progressDialog.show();
-        }
+
 
         // on click send button
         sendMsg.setOnClickListener(new View.OnClickListener() {
@@ -185,6 +243,20 @@ public class ChatroomFragment extends Fragment {
             }
         });
 
+        onlineLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onlineLayout.setVisibility(View.GONE);
+            }
+        });
+
+        chatview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onlineLayout.setVisibility(View.VISIBLE);
+            }
+        });
+
 
 
     }
@@ -193,14 +265,12 @@ public class ChatroomFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        Log.e("chack1>>>","working??");
 
 
         //get list from reference
         chatroomreference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.e("chack2>>>","working??");
                 append_msg(dataSnapshot);
             }
 
@@ -226,6 +296,40 @@ public class ChatroomFragment extends Fragment {
 
             }
         });
+
+        onlinereference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String oboys = dataSnapshot.child("boys").getValue(String.class);
+                String ogirls = dataSnapshot.child("girls").getValue(String.class);
+                setvaluestoOnlineBar(oboys,ogirls);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+
+
+    }
+
+    private void setvaluestoOnlineBar(String oboys, String ogirls) {
+
+        onlineShow.setText("");
+
+        appendColoredText(onlineShow,oboys,Color.BLACK);
+        appendColoredText(onlineShow,"+",Color.WHITE);
+        appendColoredText(onlineShow,ogirls,Color.BLUE);
+        appendColoredText(onlineShow," ONLINE",Color.WHITE);
+
+        onlineLayout.setVisibility(View.VISIBLE);
+
+
+
 
     }
 
@@ -260,10 +364,10 @@ public class ChatroomFragment extends Fragment {
 
             prev_name = temp_name;
 
-            scroll.postDelayed(new Runnable() {
+            chatscroll.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    scroll.fullScroll(ScrollView.FOCUS_DOWN);
+                    chatscroll.fullScroll(ScrollView.FOCUS_DOWN);
                 }
             },1000);
 
@@ -292,10 +396,67 @@ public class ChatroomFragment extends Fragment {
         }
     }
 
+
+
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
+
+    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        decrimentOnlineUser();
+    }
+
+    void decrimentOnlineUser(){
+        //decriment online people
+        userPref = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+
+        DatabaseReference referenceOnline = FirebaseDatabase.getInstance().getReference().child("online");
+
+        if(userPref.getInt("sex",1)==1){
+            DatabaseReference boys = referenceOnline.child("boys");
+            boys.runTransaction(new Transaction.Handler() {
+                @Override
+                public Transaction.Result doTransaction(MutableData mutableData) {
+
+                    Log.e("chack>>> on destroy ","mutable data");
+
+
+                    String bo = mutableData.getValue(String.class);
+                    String boNew = ""+(Integer.parseInt(bo)-1);
+                    mutableData.setValue(boNew);
+                    return Transaction.success(mutableData);
+                }
+
+                @Override
+                public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+
+                }
+            });
+        }else {
+
+            DatabaseReference boys = referenceOnline.child("girls");
+            boys.runTransaction(new Transaction.Handler() {
+                @Override
+                public Transaction.Result doTransaction(MutableData mutableData) {
+
+                    String go = mutableData.getValue(String.class);
+                    String goNew = ""+(Integer.parseInt(go)-1);
+                    mutableData.setValue(goNew);
+                    return Transaction.success(mutableData);
+                }
+
+                @Override
+                public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+
+                }
+            });
+
+
+        }
     }
 
     /**

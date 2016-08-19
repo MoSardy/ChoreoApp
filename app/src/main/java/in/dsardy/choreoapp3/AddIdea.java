@@ -49,7 +49,6 @@ public class AddIdea extends AppCompatActivity {
                 Date curDate = new Date();
                 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a");
                 String DateToStr = format.format(curDate);
-                System.out.println(DateToStr);
 
                 Idea idea = new Idea(myTitle,myDes,temp_key,"Shubham Sardar",DateToStr);
                 referenceIdeas.child(temp_key).setValue(idea);

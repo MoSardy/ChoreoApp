@@ -1,9 +1,12 @@
 package in.dsardy.choreoapp3;
 
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -11,8 +14,17 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 
 
 public class MainActivity extends AppCompatActivity
@@ -22,6 +34,9 @@ public class MainActivity extends AppCompatActivity
     String mLastUpdateTime;
     private ProgressDialog progressDialog;
     private String locationText;
+    SharedPreferences userPref;
+
+
 
 
     @Override
@@ -31,6 +46,49 @@ public class MainActivity extends AppCompatActivity
         //splash
         setContentView(R.layout.activity_main);
 
+        //incriment online people
+        userPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        DatabaseReference referenceOnline = FirebaseDatabase.getInstance().getReference().child("online");
+        if(userPref.getInt("sex",1)==1){
+            DatabaseReference boys = referenceOnline.child("boys");
+
+            boys.runTransaction(new Transaction.Handler() {
+
+                @Override
+                public Transaction.Result doTransaction(MutableData mutableData) {
+
+                    String bo = mutableData.getValue(String.class);
+                    String boNew = ""+(Integer.parseInt(bo));
+                    mutableData.setValue(boNew);
+                    return Transaction.success(mutableData);
+                }
+
+                @Override
+                public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+
+                }
+            });
+        }else {
+
+            DatabaseReference boys = referenceOnline.child("girls");
+            boys.runTransaction(new Transaction.Handler() {
+                @Override
+                public Transaction.Result doTransaction(MutableData mutableData) {
+
+                    String go = mutableData.getValue(String.class);
+                    String goNew = ""+(Integer.parseInt(go));
+                    mutableData.setValue(goNew);
+                    return Transaction.success(mutableData);
+                }
+
+                @Override
+                public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+
+                }
+            });
+
+
+        }
 
 
 
@@ -48,21 +106,49 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
+
         // initially go to map frag
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragments_container, new MapsFragment() ).commit();
+
+
+
+
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
 
+
+    }
+
+    private Boolean exit = false;
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            if (exit) {
+                finish(); // finish activity
+            } else {
+                Toast.makeText(this, "Press Back again to Exit.",
+                        Toast.LENGTH_SHORT).show();
+                exit = true;
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        exit = false;
+                    }
+                }, 3 * 1000);
+
+            }
         }
     }
+
+
 
 
     @Override
@@ -144,22 +230,12 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
 
 
-    private void setText(Location location) {
-        String appendValue = location.getLatitude() + ", " + location.getLongitude() + "\n";
-        String newValue;
-        CharSequence current = locationText;
-
-        if (!TextUtils.isEmpty(current)) {
-            newValue = current + appendValue;
-        } else {
-            newValue = appendValue;
-        }
-
-        locationText = newValue;
     }
-
 
     @Override
     public void onFragmentInteraction(Uri uri) {

@@ -1,5 +1,6 @@
 package in.dsardy.choreoapp3;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -11,9 +12,11 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import android.Manifest;
@@ -32,6 +35,21 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import in.dsardy.choreoapp3.models.Member;
 
 
 /**
@@ -42,7 +60,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
  * Use the {@link MapsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MapsFragment extends Fragment implements OnMapReadyCallback,GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class MapsFragment extends Fragment implements OnMapReadyCallback,GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener, LocationListener , GoogleMap.OnMapLoadedCallback {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -56,6 +74,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,GoogleA
     Location mLastLocation;
     Marker mCurrLocationMarker;
     LocationRequest mLocationRequest;
+    ProgressDialog progressDialog;
+    DatabaseReference people;
+    DatabaseReference me;
+    HashMap<String,Marker> markers;
+
+
 
     private OnFragmentInteractionListener mListener;
 
@@ -84,6 +108,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,GoogleA
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
         }
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setMessage("Wait... Make sure your are connected , and do share your location...");
+        progressDialog.show();
+        progressDialog.setCancelable(false);
+        people = FirebaseDatabase.getInstance().getReference().child("people");
+        markers = new HashMap<>();
+
+
     }
 
     @Override
@@ -128,12 +160,20 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,GoogleA
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
+        mMap.setOnMapLoadedCallback(this);
 
         //Initialize Google Play Services
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -152,7 +192,73 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,GoogleA
         // Add a marker in iitr , and move the camera.
         LatLng iitr = new LatLng(29.865575,77.896574);
         mMap.addMarker(new MarkerOptions().position(iitr).title("IITR"));
-       mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(iitr,15));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(iitr,15));
+
+
+        //chalu
+
+        //set listener to database
+        people.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                Member m = dataSnapshot.getValue(Member.class);
+
+                String time = m.getTime();
+                String diff = gettimeDiff(time);
+
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(new LatLng(m.getLat(),m.getLang()));
+                markerOptions.title(m.getName());
+                markerOptions.snippet(diff);
+                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                Marker marker = mMap.addMarker(markerOptions);
+                markers.put(m.getEnlr(),marker);
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                Member m = dataSnapshot.getValue(Member.class);
+                String time = m.getTime();
+                String diff = gettimeDiff(time);
+
+                //remove previous one
+                markers.get(m.getEnlr()).remove();
+
+                //get
+
+                //new markeroptions
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(new LatLng(m.getLat(),m.getLang()));
+                markerOptions.title(m.getName());
+                markerOptions.snippet(diff);
+                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                Marker marker = mMap.addMarker(markerOptions);
+                markers.put(m.getEnlr(),marker);
+
+
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
 
     }
 
@@ -178,6 +284,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,GoogleA
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         }
 
+
     }
 
     @Override
@@ -196,27 +303,17 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,GoogleA
     public void onLocationChanged(Location location) {
 
         mLastLocation = location;
-        if (mCurrLocationMarker != null) {
-            mCurrLocationMarker.remove();
-        }
-
-        Toast.makeText(getActivity(),"location changed",Toast.LENGTH_LONG).show();
-
-        //Place current location marker
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.title("Current Position");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-       mCurrLocationMarker = mMap.addMarker(markerOptions);
-
-        //move map camera
 
 
-        /*//stop location updates
-        if (mGoogleApiClient != null) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-        }*/
+
+        // update location to database
+        Date curDate = new Date();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a");
+        String DateToStr = format.format(curDate);
+        Member member = new Member("14117068","8394876737","Shubham Sardar",mLastLocation.getLatitude(),mLastLocation.getLongitude(),DateToStr);
+        me = people.child("14117068");
+        me.setValue(member);
+
 
     }
 
@@ -284,6 +381,53 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,GoogleA
             // other 'case' lines to check for other permissions this app might request.
             // You can add here other case statements according to your requirement.
         }
+    }
+
+    @Override
+    public void onMapLoaded() {
+        progressDialog.hide();
+    }
+
+    String gettimeDiff(String time){
+
+        String startDateString = time;
+        String diff = "" ;
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a");
+        Date startDate ;
+        try {
+            startDate = df.parse(startDateString);
+
+            if(startDate!=null){
+
+                Date endDate = new Date();
+
+                long duration  = endDate.getTime() - startDate.getTime();
+                long diffInSeconds = TimeUnit.MILLISECONDS.toSeconds(duration);
+                long diffInMinutes = TimeUnit.MILLISECONDS.toMinutes(duration);
+                long diffInHours = TimeUnit.MILLISECONDS.toHours(duration);
+
+                if(diffInSeconds==0){
+                    return "Realtime!";
+                }
+
+                if(diffInSeconds<60){
+                    diff = ""+diffInSeconds+" sec ago";
+                }else if(diffInMinutes<60){
+                    diff = ""+diffInMinutes+" min ago";
+                }else if(diffInHours<24){
+                    diff = ""+diffInHours+" hrs ago";
+                }else {
+
+                    int daysago = endDate.compareTo(startDate);
+                    diff = ""+daysago+" days ago";
+                }
+
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return diff;
+
     }
 
     /**
