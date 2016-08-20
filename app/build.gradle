@@ -34,6 +34,8 @@ dependencies {
     compile 'com.firebaseui:firebase-ui:0.4.4'
 
     compile 'com.github.jd-alexander:LikeButton:0.2.0'
+    compile 'com.msg91.sendotp.library:library:2.7'
+
 }
 apply plugin: 'com.google.gms.google-services'
 
