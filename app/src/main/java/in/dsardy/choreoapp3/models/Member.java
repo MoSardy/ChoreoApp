@@ -12,6 +12,7 @@ public class Member {
     String name ;
     double lat,lang;
     String time;
+    int sex;
 
     public Member(){
 
@@ -19,13 +20,14 @@ public class Member {
 
 
 
-    public Member(String enlr , String mobile , String name , double lat , double lang , String time ){
+    public Member(String enlr , String mobile , String name , double lat , double lang , String time , int sex ){
         this.enlr = enlr;
         this.lang = lang;
         this.lat = lat;
         this.mobile = mobile;
         this.name = name;
         this.time = time;
+        this.sex = sex;
     }
 
     public String getTime() {
@@ -52,4 +54,7 @@ public class Member {
         return name;
     }
 
+    public int getSex() {
+        return sex;
+    }
 }

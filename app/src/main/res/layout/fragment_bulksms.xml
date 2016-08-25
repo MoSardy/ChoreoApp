@@ -22,7 +22,7 @@
             <EditText
                 android:layout_width="fill_parent"
                 android:layout_height="150dp"
-                android:id="@+id/editText"
+                android:id="@+id/editTextMassage"
                 android:background="@drawable/edittect_bg"
                 android:hint="Type SMS to send ..."
                 android:gravity="top"

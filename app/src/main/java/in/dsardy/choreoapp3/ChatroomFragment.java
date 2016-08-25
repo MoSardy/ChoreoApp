@@ -122,12 +122,10 @@ public class ChatroomFragment extends Fragment {
 
                 @Override
                 public Transaction.Result doTransaction(MutableData mutableData) {
-                    Log.e("chack22>>> on create ","mutable data");
 
                     String bo = mutableData.getValue(String.class);
                     String boNew = ""+(Integer.parseInt(bo)+1);
                     mutableData.setValue(boNew);
-                    Log.e("chack222>>> on create ","mutable data");
                     return Transaction.success(mutableData);
                 }
 
@@ -235,8 +233,8 @@ public class ChatroomFragment extends Fragment {
                     DatabaseReference msg_ref = chatroomreference.child(temp_key);
                     Map<String,Object> map1 = new HashMap<String, Object>();
                     map1.put("msg",typedMsg);
-                    map1.put("name","Shubham Sardar");
-                    map1.put("sex","1");
+                    map1.put("name",userPref.getString("name","user"));
+                    map1.put("sex",userPref.getInt("sex",1));
                     msg_ref.updateChildren(map1);
                 }
 
@@ -254,6 +252,13 @@ public class ChatroomFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 onlineLayout.setVisibility(View.VISIBLE);
+
+                //hide keybord
+                InputMethodManager inputManager = (InputMethodManager)
+                       getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+
+                inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
+                        InputMethodManager.HIDE_NOT_ALWAYS);
             }
         });
 
@@ -333,7 +338,8 @@ public class ChatroomFragment extends Fragment {
 
     }
 
-    String temp_name,prev_name , temp_msg ,temp_gen;
+    String temp_name,prev_name , temp_msg ;
+    Long temp_gen;
     void append_msg(DataSnapshot dataSnapshot){
 
         Iterator i = dataSnapshot.getChildren().iterator();
@@ -341,12 +347,12 @@ public class ChatroomFragment extends Fragment {
 
             temp_msg = (String) ((DataSnapshot)i.next()).getValue();
             temp_name = (String) ((DataSnapshot)i.next()).getValue();
-            temp_gen = (String) ((DataSnapshot)i.next()).getValue();
+            temp_gen = (Long) ((DataSnapshot)i.next()).getValue();
 
 
             if(temp_name.equals(prev_name)){
 
-                if(temp_gen.equals("1"))
+                if(temp_gen==1)
                     appendColoredText(chatview,"         "+ temp_msg+"\n", Color.BLACK);
                 else
                     appendColoredText(chatview,"         "+ temp_msg+"\n", Color.BLUE);
@@ -354,7 +360,7 @@ public class ChatroomFragment extends Fragment {
 
             }else{
 
-                if(temp_gen.equals("1"))
+                if(temp_gen==1)
                 appendColoredText(chatview,"\n-->> : "+ temp_msg+"\n", Color.BLACK);
                 else
                     appendColoredText(chatview,"\n-->> : "+ temp_msg+"\n", Color.BLUE);

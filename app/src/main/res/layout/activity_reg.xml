@@ -16,15 +16,18 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
+        >
 
         <LinearLayout
             android:orientation="horizontal"
+            android:id="@+id/enlrlayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|top"
             android:weightSum="100"
-            android:background="@color/accent_material_light"
+            android:background="@color/colorPrimaryDark"
             android:padding="10dp">
 
             <EditText
@@ -34,6 +37,7 @@
                 android:ems="10"
                 android:id="@+id/editTextEnlr"
                 android:hint="Enter your Enrollment No."
+                android:maxLength="100"
                 android:padding="10dp"
                 android:layout_weight="20"
                 android:layout_gravity="center_vertical"

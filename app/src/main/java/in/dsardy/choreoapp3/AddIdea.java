@@ -2,6 +2,8 @@ package in.dsardy.choreoapp3;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -25,12 +27,14 @@ public class AddIdea extends AppCompatActivity {
     String myTitle,myDes;
     DatabaseReference referenceIdeas;
     String temp_key;
+    SharedPreferences userPref;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_idea);
+        userPref = PreferenceManager.getDefaultSharedPreferences(this);
 
 
         referenceIdeas = FirebaseDatabase.getInstance().getReference().child("ideas");
@@ -50,7 +54,7 @@ public class AddIdea extends AppCompatActivity {
                 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a");
                 String DateToStr = format.format(curDate);
 
-                Idea idea = new Idea(myTitle,myDes,temp_key,"Shubham Sardar",DateToStr);
+                Idea idea = new Idea(myTitle,myDes,temp_key,userPref.getString("name","user420"),DateToStr);
                 referenceIdeas.child(temp_key).setValue(idea);
                // referenceIdeas.push().setValue(idea);
 

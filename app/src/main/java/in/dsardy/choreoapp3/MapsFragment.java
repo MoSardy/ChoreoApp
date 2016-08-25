@@ -2,11 +2,13 @@ package in.dsardy.choreoapp3;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -78,6 +80,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,GoogleA
     DatabaseReference people;
     DatabaseReference me;
     HashMap<String,Marker> markers;
+    SharedPreferences userPerf;
 
 
 
@@ -114,7 +117,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,GoogleA
         progressDialog.setCancelable(false);
         people = FirebaseDatabase.getInstance().getReference().child("people");
         markers = new HashMap<>();
-
+        userPerf = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
     }
 
@@ -310,8 +313,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,GoogleA
         Date curDate = new Date();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a");
         String DateToStr = format.format(curDate);
-        Member member = new Member("14117068","8394876737","Shubham Sardar",mLastLocation.getLatitude(),mLastLocation.getLongitude(),DateToStr);
-        me = people.child("14117068");
+        Member member = new Member(userPerf.getString("enlr","14117068"),userPerf.getString("mobile","8394876737"),userPerf.getString("name","user"),mLastLocation.getLatitude(),mLastLocation.getLongitude(),DateToStr,userPerf.getInt("sex",1));
+        me = people.child(userPerf.getString("enlr","14117068"));
         me.setValue(member);
 
 

@@ -35,7 +35,7 @@ dependencies {
 
     compile 'com.github.jd-alexander:LikeButton:0.2.0'
     compile 'com.msg91.sendotp.library:library:2.7'
-
+    compile 'rb.popview:popview:0.1.0'
 }
 apply plugin: 'com.google.gms.google-services'
 
