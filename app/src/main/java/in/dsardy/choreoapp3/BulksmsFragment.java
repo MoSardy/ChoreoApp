@@ -329,11 +329,8 @@ public class BulksmsFragment extends Fragment {
             super.onPostExecute(s);
             smsProgressDialog.hide();
             messageET.setText("");
-            if(s.isEmpty()){
-                Toast.makeText(getActivity(),"Sorry!! Try Again",Toast.LENGTH_LONG).show();
-            }else{
             Toast.makeText(getActivity(),"SMS sent Successfully!",Toast.LENGTH_LONG).show();
-            }
+
 
         }
     }

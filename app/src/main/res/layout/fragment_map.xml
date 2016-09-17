@@ -5,10 +5,28 @@
     tools:context="in.dsardy.choreoapp3.MapsFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <fragment
+
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/gmap"
-        class="com.google.android.gms.maps.SupportMapFragment" />
+        android:animateLayoutChanges="true">
+        <com.github.ybq.android.spinkit.SpinKitView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/spin_kit_map"
+            style="@style/SpinKitView.Large.Wave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:SpinKit_Color="@color/colorAccent"
+            android:layout_margin="30dp"
+            android:indeterminate="false" />
+
+        <fragment
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/gmap"
+            class="com.google.android.gms.maps.SupportMapFragment" />
+    </LinearLayout>
 
 </FrameLayout>

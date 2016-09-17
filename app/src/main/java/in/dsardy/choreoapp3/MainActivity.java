@@ -1,7 +1,11 @@
 package in.dsardy.choreoapp3;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,6 +18,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,6 +30,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 
 public class MainActivity extends AppCompatActivity
@@ -45,9 +53,18 @@ public class MainActivity extends AppCompatActivity
 
         //splash
         setContentView(R.layout.activity_main);
+        userPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+
+        //go to reg if not reg
+        if(userPref.getInt("reg",0)!=1){
+            Intent intent = new Intent(this,RegActivity.class);
+            startActivity(intent);
+            finish();
+        }
+
 
         //incriment online people
-        userPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         DatabaseReference referenceOnline = FirebaseDatabase.getInstance().getReference().child("online");
         if(userPref.getInt("sex",1)==1){
             DatabaseReference boys = referenceOnline.child("boys");
@@ -202,6 +219,8 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_info) {
 
+            startActivity(new Intent(MainActivity.this,AboutActivity.class));
+
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -241,4 +260,6 @@ public class MainActivity extends AppCompatActivity
     public void onFragmentInteraction(Uri uri) {
 
     }
+
+
 }

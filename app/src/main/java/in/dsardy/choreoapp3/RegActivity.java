@@ -3,6 +3,7 @@ package in.dsardy.choreoapp3;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -58,12 +59,6 @@ public class RegActivity extends AppCompatActivity implements VerificationListen
         setContentView(R.layout.activity_reg);
 
         userPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        //check if already regestered
-        if(userPref.getInt("reg",0)==1){
-            Intent intent = new Intent(this,MainActivity.class);
-            startActivity(intent);
-            finish();
-        }
 
         popField = PopField.attach2Window(this);
         initializeUI();
@@ -75,6 +70,48 @@ public class RegActivity extends AppCompatActivity implements VerificationListen
     @Override
     protected void onStart() {
         super.onStart();
+
+        valueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Member me = dataSnapshot.getValue(Member.class);
+
+
+                if (me == null) {
+
+                    regMsg.setText(R.string.notmembermsg);
+                    regMsg.setTextColor(Color.RED);
+                    EnlrGo.setImageResource(R.drawable.ic_check_circle_black_24dp);
+                    Enlr.setText("");
+                    process=0;
+
+
+                } else {
+
+
+
+                    //save to editor
+                    editor.putString("name",me.getName());
+                    editor.putString("enlr",me.getEnlr());
+                    editor.putInt("sex",me.getSex());
+                    editor.putString("mobile",me.getMobile());
+
+                    regMsg.setText("Sending OTP ...");
+                    regMsg.setTextColor(Color.CYAN);
+                    startsendingOTP(me.getMobile());
+
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+                regMsg.setText("Check connection!");
+
+            }
+        };
 
         EnlrGo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,6 +128,7 @@ public class RegActivity extends AppCompatActivity implements VerificationListen
 
                     EnlrGo.setImageResource(R.drawable.ic_cancel_black_24dp);
                     process = 1;
+                    regMsg.setText("Wait...");
 
                     String enlr = Enlr.getText().toString().trim();
                     if(enlr.isEmpty()){
@@ -102,46 +140,7 @@ public class RegActivity extends AppCompatActivity implements VerificationListen
                     }else {
 
                         you = people.child(enlr);
-
-                        valueEventListener = new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                Member me = dataSnapshot.getValue(Member.class);
-
-
-                                if (me == null) {
-
-                                    regMsg.setText(R.string.notmembermsg);
-                                    EnlrGo.setImageResource(R.drawable.ic_check_circle_black_24dp);
-                                    Enlr.setText("");
-                                    process=0;
-
-
-                                } else {
-                                    //save to editor
-                                    editor.putString("name",me.getName());
-                                    editor.putString("enlr",me.getEnlr());
-                                    editor.putInt("sex",me.getSex());
-                                    editor.putString("mobile",me.getMobile());
-
-                                    regMsg.setText("Sending OTP ...");
-                                    startsendingOTP(me.getMobile());
-
-
-                                }
-
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                                regMsg.setText("Check connection!");
-
-                            }
-                        };
                         you.addValueEventListener(valueEventListener);
-
-
                     }
 
 
@@ -171,8 +170,11 @@ public class RegActivity extends AppCompatActivity implements VerificationListen
 
 
                 String votp = OTP.getText().toString().trim();
-                verification.verify(votp); //verifying otp for given number
                 MobileMsg.setText("varifying...");
+                you.removeEventListener(valueEventListener);
+                verification.verify(votp); //verifying otp for given number
+
+
             }
         });
 
@@ -194,13 +196,17 @@ public class RegActivity extends AppCompatActivity implements VerificationListen
     private void startsendingOTP(String mobile) {
 
         verification = SendOtpVerification.createSmsVerification(this,mobile,this, "91");
-        verification.initiate(); //sending otp on given number
+
+        if(userPref.getInt("reg",0)==0) {
+            verification.initiate(); //sending otp on given number
+        }
     }
 
 
     @Override
     public void onInitiated(String response) {
 
+        popField.popView(imageStart);
         imageStart.setVisibility(View.GONE);
         OtpEnter.setVisibility(View.VISIBLE);
         MobileMsg.setText("OTP is sent to your RMN !");
@@ -231,9 +237,8 @@ public class RegActivity extends AppCompatActivity implements VerificationListen
         DatabaseReference smsto = FirebaseDatabase.getInstance().getReference().child("smsto");
         smsto.child(userPref.getString("name","user")).setValue(userPref.getString("mobile","8394876737"));
 
-        popField.popView(OtpEnter);
-        you.removeEventListener(valueEventListener);
         popField.popView(enlrlay);
+        popField.popView(OtpEnter);
 
 
 

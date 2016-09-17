@@ -4,13 +4,30 @@
     android:layout_height="match_parent"
     tools:context="in.dsardy.choreoapp3.IdeasFragment"
     android:background="@color/background_material_light">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:animateLayoutChanges="true">
 
     <!-- TODO: Update blank fragment layout -->
+    <com.github.ybq.android.spinkit.SpinKitView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/spin_kit_rec"
+        style="@style/SpinKitView.Large.Wave"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        app:SpinKit_Color="@color/colorAccent"
+        android:layout_margin="30dp"
+        android:indeterminate="false" />
 
-   <android.support.v7.widget.RecyclerView
+    <android.support.v7.widget.RecyclerView
        android:layout_width="match_parent"
        android:layout_height="wrap_content"
        android:id="@+id/ideaslist"/>
+
+    </LinearLayout>
 
 
 </FrameLayout>

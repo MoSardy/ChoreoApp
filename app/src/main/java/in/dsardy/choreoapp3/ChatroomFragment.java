@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -24,6 +25,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.ybq.android.spinkit.SpinKitView;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -36,6 +38,8 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import rb.popview.PopField;
 
 
 /**
@@ -68,6 +72,8 @@ public class ChatroomFragment extends Fragment {
     LinearLayout onlineLayout;
     TextView onlineShow;
     ScrollView chatscroll;
+    SpinKitView loader;
+    PopField popField;
 
 
 
@@ -107,6 +113,7 @@ public class ChatroomFragment extends Fragment {
 
         chatroomreference = FirebaseDatabase.getInstance().getReference().child("chatroom");
         onlinereference = FirebaseDatabase.getInstance().getReference().child("online");
+        popField = PopField.attach2Window(getActivity());
 
         //incriment online people
         userPref = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
@@ -176,6 +183,7 @@ public class ChatroomFragment extends Fragment {
         onlineLayout = (LinearLayout)view.findViewById(R.id.onlinebar);
         onlineShow = (TextView)view.findViewById(R.id.textViewOnline);
         chatscroll = (ScrollView)view.findViewById(R.id.ChatscrollView);
+        loader = (SpinKitView)view.findViewById(R.id.spin_kit);
 
         chatscroll.postDelayed(new Runnable() {
             @Override
@@ -215,12 +223,7 @@ public class ChatroomFragment extends Fragment {
 
                 }else {
 
-                    /*// hide keyboard
-                    InputMethodManager inputManager = (InputMethodManager)
-                            getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 
-                    inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
-                            InputMethodManager.HIDE_NOT_ALWAYS);*/
                     // make edit text empty
                     msg.setText("");
 
@@ -236,6 +239,7 @@ public class ChatroomFragment extends Fragment {
                     map1.put("name",userPref.getString("name","user"));
                     map1.put("sex",userPref.getInt("sex",1));
                     msg_ref.updateChildren(map1);
+
                 }
 
             }
@@ -276,6 +280,7 @@ public class ChatroomFragment extends Fragment {
         chatroomreference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                loader.setVisibility(View.GONE);
                 append_msg(dataSnapshot);
             }
 
@@ -342,6 +347,7 @@ public class ChatroomFragment extends Fragment {
     Long temp_gen;
     void append_msg(DataSnapshot dataSnapshot){
 
+
         Iterator i = dataSnapshot.getChildren().iterator();
         while (i.hasNext()){
 
@@ -376,8 +382,6 @@ public class ChatroomFragment extends Fragment {
                     chatscroll.fullScroll(ScrollView.FOCUS_DOWN);
                 }
             },1000);
-
-
 
         }
 

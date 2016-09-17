@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import android.Manifest;
 
+import com.github.ybq.android.spinkit.SpinKitView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -33,6 +34,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -52,6 +54,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import in.dsardy.choreoapp3.models.Member;
+import rb.popview.PopField;
 
 
 /**
@@ -81,6 +84,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,GoogleA
     DatabaseReference me;
     HashMap<String,Marker> markers;
     SharedPreferences userPerf;
+    PopField popField;
+    SpinKitView loader;
 
 
 
@@ -112,12 +117,15 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,GoogleA
             checkLocationPermission();
         }
         progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setMessage("Wait... Make sure your are connected , and do share your location...");
-        progressDialog.show();
-        progressDialog.setCancelable(false);
+        progressDialog.setMessage("Wait... Plz make sure your are connected , and do share your location...");
+        progressDialog.setCancelable(true);
+
         people = FirebaseDatabase.getInstance().getReference().child("people");
         markers = new HashMap<>();
         userPerf = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        popField = PopField.attach2Window(getActivity());
+
+
 
     }
 
@@ -125,7 +133,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,GoogleA
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_map, container, false);
+        View view = inflater.inflate(R.layout.fragment_map, container, false);
+        loader = (SpinKitView)view.findViewById(R.id.spin_kit_map);
+        progressDialog.show();
+
+        return view;
     }
 
     @Override
@@ -194,7 +206,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,GoogleA
 
         // Add a marker in iitr , and move the camera.
         LatLng iitr = new LatLng(29.865575,77.896574);
-        mMap.addMarker(new MarkerOptions().position(iitr).title("IITR"));
+        mMap.addMarker(new MarkerOptions()
+                .position(iitr)
+                .title("IITR")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(iitr,15));
 
 
@@ -214,7 +229,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,GoogleA
                 markerOptions.position(new LatLng(m.getLat(),m.getLang()));
                 markerOptions.title(m.getName());
                 markerOptions.snippet(diff);
-                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+
+                if(m.getSex()==1){
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
+                }else{
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                }
+
+
                 Marker marker = mMap.addMarker(markerOptions);
                 markers.put(m.getEnlr(),marker);
 
@@ -237,7 +259,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,GoogleA
                 markerOptions.position(new LatLng(m.getLat(),m.getLang()));
                 markerOptions.title(m.getName());
                 markerOptions.snippet(diff);
-                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+
+                if(m.getSex()==1){
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
+                }else{
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                }
+
                 Marker marker = mMap.addMarker(markerOptions);
                 markers.put(m.getEnlr(),marker);
 
@@ -272,10 +300,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,GoogleA
                 .addApi(LocationServices.API)
                 .build();
         mGoogleApiClient.connect();
+
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+
 
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(1000);
@@ -299,6 +329,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,GoogleA
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+
 
     }
 
@@ -388,6 +420,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,GoogleA
 
     @Override
     public void onMapLoaded() {
+
+        loader.setVisibility(View.GONE);
         progressDialog.hide();
     }
 
@@ -421,7 +455,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback,GoogleA
                     diff = ""+diffInHours+" hrs ago";
                 }else {
 
-                    int daysago = endDate.compareTo(startDate);
+                    long daysago = duration / (1000 * 60 * 60 * 24);
                     diff = ""+daysago+" days ago";
                 }
 

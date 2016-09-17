@@ -9,4 +9,29 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="notmembermsg">#Error404, contact Dsardy!</string>
+    <string name="bulknote">Note : Your SMS must be Important and precise ! #saveResources \n\n I dont kno what to do with this blank space here.. so let me inform you :
+        this service is based on a sms gateway i have purchased , so the msg you are sending are not free , have to pay for it : 1250rs pre 5000 msg.
+        \n\n if anyone wants to contribute the development , most welcome!  </string>
+    <string name="title_activity_about">About</string>
+    <string name="large_text">
+        " I really appritiate that you have installed this app..\n\n"
+
+        "
+        Thanks to Google maps, Firebase , Msg91 sms gateway and some 3rd party libraries.."
+        "Apart from just adding something in my resume there is some motto behind this app "
+        "I will be upgrading this with new features if you people are liking it.\n"
+        "Realtime Last-Known Location (RTLL) is the most powerful feature among all till now.. "
+        "Well i have not constrained the user to share there RTLL , you can always just "
+        "turn OFF your locations and can still use other features.. "
+        "with RTLL you can just minimise those 'Kaha hai'..\n\n"
+        "
+        Another controversial feature is Anonymous I, it is developed such that even the database cant find who have typed any perticular message , that means it is 100% anonymous . at this moment
+        I cant say much about this feature , but as a developer i just wanted to make some chat app..and anonymous is more cool than simple group chat which you guys enjoy on gaints like WhatsApp."
+        " But still,  if it provokes negativity I will remove it perhaps.. "
+        ".\n\n"
+
+        "finally thanks again . Peace! \n\n"
+
+
+    </string>
 </resources>

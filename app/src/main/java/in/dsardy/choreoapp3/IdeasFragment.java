@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.github.ybq.android.spinkit.SpinKitView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.like.LikeButton;
@@ -34,6 +35,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import in.dsardy.choreoapp3.models.Idea;
+import rb.popview.PopField;
 
 
 /**
@@ -58,6 +60,9 @@ public class IdeasFragment extends Fragment {
     FirebaseRecyclerAdapter firebaseRecyclerAdapter;
     DatabaseReference ideasreference;
     LinearLayoutManager linearLayoutManager;
+    SpinKitView loader;
+    PopField popField;
+
 
 
 
@@ -125,6 +130,7 @@ public class IdeasFragment extends Fragment {
         linearLayoutManager = new LinearLayoutManager(getActivity());
         linearLayoutManager.setReverseLayout(true);
         linearLayoutManager.setStackFromEnd(true);
+        popField = PopField.attach2Window(getActivity());
 
 
     }
@@ -137,6 +143,7 @@ public class IdeasFragment extends Fragment {
 
         recyclerListIdeas = (RecyclerView)view.findViewById(R.id.ideaslist);
         recyclerListIdeas.setHasFixedSize(true);
+        loader = (SpinKitView)view.findViewById(R.id.spin_kit_rec);
 
 
         return view;
@@ -187,6 +194,7 @@ public class IdeasFragment extends Fragment {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
+                loader.setVisibility(View.GONE);
                 int friendlyMessageCount = firebaseRecyclerAdapter.getItemCount();
                 int lastVisiblePosition =
                         linearLayoutManager.findLastCompletelyVisibleItemPosition();
@@ -326,7 +334,7 @@ public class IdeasFragment extends Fragment {
                         diff = ""+diffInHours+" hrs ago";
                     }else {
 
-                        int daysago = endDate.compareTo(startDate);
+                        long daysago = duration / (1000 * 60 * 60 * 24);
                         diff = ""+daysago+" days ago";
                     }
 

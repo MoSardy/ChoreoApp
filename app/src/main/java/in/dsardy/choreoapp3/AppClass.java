@@ -15,8 +15,7 @@ public class AppClass extends android.app.Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
-       //printkey();
+        printkey();
 
     }
 
@@ -36,9 +35,11 @@ public class AppClass extends android.app.Application {
         } catch (NoSuchAlgorithmException e) {
 
         }
-        Log.i("SecretKey = ",Base64.encodeToString(md.digest(), Base64.DEFAULT));
+        Log.i("SecretKey = ", Base64.encodeToString(md.digest(), Base64.DEFAULT));
 
     }
+
+
 
 
 }
